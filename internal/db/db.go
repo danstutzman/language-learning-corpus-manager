@@ -17,6 +17,7 @@ func InitDb(dbPath string) *sql.DB {
 	}
 
 	assertCorporaHasCorrectSchema(dbConn)
+	assertFilesHasCorrectSchema(dbConn)
 
 	return dbConn
 }

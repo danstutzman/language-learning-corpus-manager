@@ -17,12 +17,17 @@ func PrepareFakeDb() *sql.DB {
 			id   INTEGER PRIMARY KEY NOT NULL,
 			name TEXT
 		);
-		CREATE UNIQUE INDEX idx_corpora_name ON corpora(name);`)
-	if err != nil {
-		log.Fatal(err)
-	}
+		CREATE UNIQUE INDEX idx_corpora_name ON corpora(name);
+	  INSERT INTO corpora (name) VALUES ('test');
 
-	_, err = conn.Exec(`INSERT INTO corpora (name) VALUES ('test');`)
+		CREATE TABLE files (
+			id       INTEGER PRIMARY KEY NOT NULL,
+			filename TEXT NOT NULL,
+			size     INTEGER NOT NULL
+		);
+		CREATE UNIQUE INDEX idx_files_filename ON files(filename);
+	  INSERT INTO files (filename, size) VALUES ('test.wav', 123);
+	`)
 	if err != nil {
 		log.Fatal(err)
 	}
