@@ -4,4 +4,4 @@ go test ./...
 
 # How to run locally
 
-go run main.go
+DB_PATH=db/db.sqlite3 go run -v cmd/backend/backend.go
