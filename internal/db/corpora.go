@@ -10,6 +10,20 @@ type CorporaRow struct {
 	Name string
 }
 
+func prepareFakeCorpora(db *sql.DB) {
+	_, err := db.Exec(`
+    CREATE TABLE corpora (
+      id   INTEGER PRIMARY KEY NOT NULL,
+      name TEXT
+    );
+    CREATE UNIQUE INDEX idx_corpora_name ON corpora(name);
+    INSERT INTO corpora (name) VALUES ('test');
+  `)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func assertCorporaHasCorrectSchema(db *sql.DB) {
 	query := "SELECT id, name FROM corpora LIMIT 1"
 	if LOG {

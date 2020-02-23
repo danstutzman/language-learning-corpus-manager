@@ -12,6 +12,21 @@ type FilesRow struct {
 	Size     int
 }
 
+func prepareFakeFiles(db *sql.DB) {
+	_, err := db.Exec(`
+	  CREATE TABLE files (
+      id       INTEGER PRIMARY KEY NOT NULL,
+      filename TEXT NOT NULL,
+      size     INTEGER NOT NULL
+    );
+    CREATE UNIQUE INDEX idx_files_filename ON files(filename);
+    INSERT INTO files (filename, size) VALUES ('test.wav', 123);
+  `)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func assertFilesHasCorrectSchema(db *sql.DB) {
 	query := "SELECT id, filename, size FROM files LIMIT 1"
 	if LOG {
