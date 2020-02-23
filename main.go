@@ -9,7 +9,7 @@ import (
 
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/hello", handleGetRoot).Methods("GET")
+	r.HandleFunc("/", handleGetRoot).Methods("GET")
 	return r
 }
 
