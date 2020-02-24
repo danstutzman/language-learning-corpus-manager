@@ -13,6 +13,8 @@ import (
 	"path"
 )
 
+const S3_OBJECT_PATH = "index.sqlite3"
+
 type S3Index struct {
 	s3Bucket  string
 	s3Session *session.Session
@@ -41,7 +43,7 @@ func (index *S3Index) Download() error {
 	service := s3.New(index.s3Session)
 	getOutput, err := service.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(index.s3Bucket),
-		Key:    aws.String("index.sqlite3"),
+		Key:    aws.String(S3_OBJECT_PATH),
 	})
 	if err != nil {
 		return err
@@ -93,4 +95,24 @@ func (index *S3Index) InsertFile(filename string, size int) {
 		Filename: filename,
 		Size:     int(size),
 	})
+	index.dbConn.Close()
+	index.dbConn = nil
+
+	dbFile, err := os.Open(index.dbPath)
+	if err != nil {
+		panic(err)
+	}
+	defer dbFile.Close()
+
+	service := s3.New(index.s3Session)
+	_, err = service.PutObject(&s3.PutObjectInput{
+		Body:   aws.ReadSeekCloser(dbFile),
+		Bucket: aws.String(index.s3Bucket),
+		Key:    aws.String(S3_OBJECT_PATH),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	index.dbConn = db.InitDb(index.dbPath)
 }

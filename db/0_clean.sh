@@ -2,4 +2,4 @@
 
 cd $(dirname $0)
 
-rm -rf db.sqlite3
+rm -rf index.sqlite3

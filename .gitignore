@@ -1,4 +1,4 @@
 # Ignore vim swap files
 .*.swp
 
-/db/db.sqlite3
+/db/index.sqlite3

@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-sqlite3 db.sqlite3 <<EOF
+sqlite3 index.sqlite3 <<EOF
   DROP TABLE IF EXISTS corpora;
   CREATE TABLE corpora (
     id   INTEGER PRIMARY KEY NOT NULL,

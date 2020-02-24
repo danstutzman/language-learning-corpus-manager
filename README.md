@@ -8,7 +8,7 @@ go test ./...
 
 `db/1_populate.sh`
 
-`AWS_PROFILE=personal aws s3 cp db/db.sqlite3 s3://danstutzman-language-learning-corpora/index.sqlite3`
+`AWS_PROFILE=personal aws s3 cp db/index.sqlite3 s3://danstutzman-language-learning-corpora/index.sqlite3`
 
 ```
 S3_TOKEN=MY_TOKEN_HERE \
