@@ -2,22 +2,19 @@ package main
 
 import (
 	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/index"
-	"database/sql"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
-func newRouter(dbConn *sql.DB,
-	indexDownloader index.IndexDownloader) *mux.Router {
-
+func newRouter(index index.Index) *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		getRoot(w, r, dbConn, indexDownloader)
+		getRoot(w, r, index)
 	}).Methods("GET")
 
 	r.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
-		getFiles(w, r, dbConn)
+		getFiles(w, r, index)
 	}).Methods("GET")
 
 	r.HandleFunc("/files/new", func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +22,7 @@ func newRouter(dbConn *sql.DB,
 	}).Methods("GET")
 
 	r.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
-		postFiles(w, r, dbConn)
+		postFiles(w, r, index)
 	}).Methods("POST")
 
 	return r

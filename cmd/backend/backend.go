@@ -17,18 +17,18 @@ func getEnv(key string) string {
 }
 
 func main() {
-	indexDownloader := index.NewS3IndexDownloader(
+	index := index.NewS3Index(
 		getEnv("S3_REGION"),
 		getEnv("S3_TOKEN"),
 		getEnv("S3_SECRET"),
 		getEnv("S3_BUCKET"),
 		getEnv("TEMP_DIR"))
-	dbConn, _, err := indexDownloader.Download()
+	err := index.Download()
 	if err != nil {
 		panic(err)
 	}
 
-	router := newRouter(dbConn, indexDownloader)
+	router := newRouter(index)
 
 	log.Printf("Running web server on :8080")
 	err = http.ListenAndServe(":8080", router)

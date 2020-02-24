@@ -2,7 +2,7 @@ package main
 
 import (
 	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/db"
-	"database/sql"
+	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/index"
 	"html/template"
 	"net/http"
 )
@@ -20,8 +20,8 @@ var getFilesTemplate = template.Must(template.New("getFilesTempate").Parse(`<htm
 	</p>
 </html>`))
 
-func getFiles(w http.ResponseWriter, r *http.Request, dbConn *sql.DB) {
-	files := db.FromFiles(dbConn, "")
+func getFiles(w http.ResponseWriter, r *http.Request, index index.Index) {
+	files := index.ListFiles()
 
 	data := struct {
 		Files []db.FilesRow

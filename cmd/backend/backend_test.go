@@ -44,8 +44,8 @@ type Fixtures struct {
 
 func setupFixtures() *Fixtures {
 	dbConn := db.PrepareFakeDb()
-	indexDownloader := index.NewFakeIndexDownloader()
-	router := newRouter(dbConn, indexDownloader)
+	index := index.NewFakeIndex()
+	router := newRouter(index)
 	server := httptest.NewServer(router)
 
 	return &Fixtures{

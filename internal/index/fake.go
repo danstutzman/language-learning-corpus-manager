@@ -3,15 +3,46 @@ package index
 import (
 	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/db"
 	"database/sql"
+	"log"
 )
 
-type FakeIndexDownloader struct {
+type FakeIndex struct {
+	dbConn *sql.DB
 }
 
-func NewFakeIndexDownloader() *FakeIndexDownloader {
-	return &FakeIndexDownloader{}
+func NewFakeIndex() *FakeIndex {
+	return &FakeIndex{
+		dbConn: db.PrepareFakeDb(),
+	}
 }
 
-func (downloader *FakeIndexDownloader) Download() (*sql.DB, string, error) {
-	return db.PrepareFakeDb(), "", nil
+func (downloader *FakeIndex) Download() error {
+	return nil
+}
+
+func (index *FakeIndex) ListCorpora() []db.CorporaRow {
+	if index.dbConn == nil {
+		log.Fatalf("Must call Download first")
+	}
+
+	return db.FromCorpora(index.dbConn, "")
+}
+
+func (index *FakeIndex) ListFiles() []db.FilesRow {
+	if index.dbConn == nil {
+		log.Fatalf("Must call Download first")
+	}
+
+	return db.FromFiles(index.dbConn, "")
+}
+
+func (index *FakeIndex) InsertFile(filename string, size int) {
+	if index.dbConn == nil {
+		log.Fatalf("Must call Download first")
+	}
+
+	db.InsertFile(index.dbConn, db.FilesRow{
+		Filename: filename,
+		Size:     int(size),
+	})
 }
