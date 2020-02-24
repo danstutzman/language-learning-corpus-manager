@@ -7,20 +7,20 @@ import (
 )
 
 type FilesRow struct {
-	Id       int
-	Filename string
-	Size     int
+	Id    int
+	S3Key string
+	Size  int
 }
 
 func prepareFakeFiles(db *sql.DB) {
 	_, err := db.Exec(`
 	  CREATE TABLE files (
-      id       INTEGER PRIMARY KEY NOT NULL,
-      filename TEXT NOT NULL,
-      size     INTEGER NOT NULL
+      id     INTEGER PRIMARY KEY NOT NULL,
+      s3_key TEXT NOT NULL,
+      size   INTEGER NOT NULL
     );
-    CREATE UNIQUE INDEX idx_files_filename ON files(filename);
-    INSERT INTO files (filename, size) VALUES ('test.wav', 123);
+    CREATE UNIQUE INDEX idx_files_s3_key ON files(s3_key);
+    INSERT INTO files (s3_key, size) VALUES ('test.wav', 123);
   `)
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +28,7 @@ func prepareFakeFiles(db *sql.DB) {
 }
 
 func assertFilesHasCorrectSchema(db *sql.DB) {
-	query := "SELECT id, filename, size FROM files LIMIT 1"
+	query := "SELECT id, s3_key, size FROM files LIMIT 1"
 	if LOG {
 		log.Println(query)
 	}
@@ -40,7 +40,7 @@ func assertFilesHasCorrectSchema(db *sql.DB) {
 }
 
 func FromFiles(db *sql.DB, whereLimit string) []FilesRow {
-	query := "SELECT id, filename, size " +
+	query := "SELECT id, s3_key, size " +
 		"FROM files " + whereLimit
 	if LOG {
 		log.Println(query)
@@ -55,7 +55,7 @@ func FromFiles(db *sql.DB, whereLimit string) []FilesRow {
 	rows := []FilesRow{}
 	for rset.Next() {
 		var row FilesRow
-		err = rset.Scan(&row.Id, &row.Filename, &row.Size)
+		err = rset.Scan(&row.Id, &row.S3Key, &row.Size)
 		if err != nil {
 			panic(err)
 		}
@@ -72,9 +72,9 @@ func FromFiles(db *sql.DB, whereLimit string) []FilesRow {
 
 func InsertFile(db *sql.DB, row FilesRow) FilesRow {
 	query := fmt.Sprintf(`INSERT INTO files
-    (filename, size)
+    (s3_key, size)
     VALUES (%s, %d)`,
-		EscapeString(row.Filename),
+		EscapeString(row.S3Key),
 		row.Size)
 	if LOG {
 		log.Println(query)

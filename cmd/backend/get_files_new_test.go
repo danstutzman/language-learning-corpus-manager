@@ -10,6 +10,11 @@ const EXPECTED_HTML_FOR_GET_FILES_NEW = `<html>
 		<h1>New File</h1>
 
 		<p>
+			<label>Corpus name</label><br>
+			<input name='corpus_name' value='spintx'>
+		</p>
+
+		<p>
 			<input type='file' name='file'>
 		</p>
 

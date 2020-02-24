@@ -13,9 +13,9 @@ sqlite3 index.sqlite3 <<EOF
 
   DROP TABLE IF EXISTS files;
   CREATE TABLE files (
-    id       INTEGER PRIMARY KEY NOT NULL,
-    filename TEXT NOT NULL,
-    size     INTEGER NOT NULL
+    id     INTEGER PRIMARY KEY NOT NULL,
+    s3_key TEXT NOT NULL,
+    size   INTEGER NOT NULL
   );
-  CREATE UNIQUE INDEX idx_files_filenames ON files(filename);
+  CREATE UNIQUE INDEX idx_files_s3_key ON files(s3_key);
 EOF

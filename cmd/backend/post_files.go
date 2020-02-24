@@ -8,13 +8,15 @@ import (
 func postFiles(w http.ResponseWriter, r *http.Request, index index.Index) {
 	r.ParseMultipartForm(10 << 20) // Limit to 10MB file
 
+	corpusName := r.FormValue("corpus_name")
+
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	index.InsertFile(handler.Filename, int(handler.Size))
+	index.InsertFile(corpusName+"/"+handler.Filename, int(handler.Size), file)
 
 	http.Redirect(w, r, "/files", http.StatusSeeOther)
 }

@@ -7,13 +7,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 )
 
-const S3_OBJECT_PATH = "index.sqlite3"
+const INDEX_S3_OBJECT_PATH = "index.sqlite3"
 
 type S3Index struct {
 	s3Bucket  string
@@ -43,7 +44,7 @@ func (index *S3Index) Download() error {
 	service := s3.New(index.s3Session)
 	getOutput, err := service.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(index.s3Bucket),
-		Key:    aws.String(S3_OBJECT_PATH),
+		Key:    aws.String(INDEX_S3_OBJECT_PATH),
 	})
 	if err != nil {
 		return err
@@ -86,14 +87,25 @@ func (index *S3Index) ListFiles() []db.FilesRow {
 	return db.FromFiles(index.dbConn, "")
 }
 
-func (index *S3Index) InsertFile(filename string, size int) {
+func (index *S3Index) InsertFile(s3Key string, size int, reader io.Reader) {
 	if index.dbConn == nil {
 		log.Fatalf("Must call Download first")
 	}
 
+	log.Printf("Uploading file to S3...")
+	service := s3.New(index.s3Session)
+	_, err := service.PutObject(&s3.PutObjectInput{
+		Body:   aws.ReadSeekCloser(reader),
+		Bucket: aws.String(index.s3Bucket),
+		Key:    aws.String(s3Key),
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	db.InsertFile(index.dbConn, db.FilesRow{
-		Filename: filename,
-		Size:     int(size),
+		S3Key: s3Key,
+		Size:  int(size),
 	})
 	index.dbConn.Close()
 	index.dbConn = nil
@@ -104,11 +116,11 @@ func (index *S3Index) InsertFile(filename string, size int) {
 	}
 	defer dbFile.Close()
 
-	service := s3.New(index.s3Session)
+	log.Printf("Uploading index to S3...")
 	_, err = service.PutObject(&s3.PutObjectInput{
 		Body:   aws.ReadSeekCloser(dbFile),
 		Bucket: aws.String(index.s3Bucket),
-		Key:    aws.String(S3_OBJECT_PATH),
+		Key:    aws.String(INDEX_S3_OBJECT_PATH),
 	})
 	if err != nil {
 		panic(err)

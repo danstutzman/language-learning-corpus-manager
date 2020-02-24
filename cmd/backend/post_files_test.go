@@ -13,7 +13,7 @@ const EXPECTED_HTML_FOR_POST_FILES = `<html>
 	<h1>Files</h1>
 	<ul>
 		<li>{1 test.wav 123}</li>
-		<li>{2 transcript.txt 4}</li>
+		<li>{2 test/transcript.txt 4}</li>
 	</ul>
 
 	<p>
@@ -26,17 +26,23 @@ func TestRouterPostFiles(t *testing.T) {
 	defer teardownFixtures(fixtures)
 
 	var buffer bytes.Buffer
-	writer := multipart.NewWriter(&buffer)
-	fileWriter, err := writer.CreateFormFile("file", "transcript.txt")
+	multipartWriter := multipart.NewWriter(&buffer)
+
+	fileWriter, err := multipartWriter.CreateFormFile("file", "transcript.txt")
 	assert.Nil(t, err)
 	fileWriter.Write([]byte("test"))
-	writer.Close()
+
+	fieldWriter, err := multipartWriter.CreateFormField("corpus_name")
+	assert.Nil(t, err)
+	fieldWriter.Write([]byte("test"))
+
+	multipartWriter.Close()
 
 	req, err := http.NewRequest("POST", fixtures.server.URL+"/files", &buffer)
 	if err != nil {
 		return
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 
 	client := fixtures.server.Client()
 	res, err := client.Do(req)
