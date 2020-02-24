@@ -1,16 +1,19 @@
 package main
 
 import (
+	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/index"
 	"database/sql"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
-func newRouter(dbConn *sql.DB) *mux.Router {
+func newRouter(dbConn *sql.DB,
+	indexDownloader index.IndexDownloader) *mux.Router {
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		getRoot(w, r, dbConn)
+		getRoot(w, r, dbConn, indexDownloader)
 	}).Methods("GET")
 
 	r.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {

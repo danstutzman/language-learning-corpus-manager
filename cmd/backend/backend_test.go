@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/db"
+	"bitbucket.org/danstutzman/language-learning-corpus-manager/internal/index"
 	"database/sql"
 	"github.com/gorilla/mux"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -43,7 +44,8 @@ type Fixtures struct {
 
 func setupFixtures() *Fixtures {
 	dbConn := db.PrepareFakeDb()
-	router := newRouter(dbConn)
+	indexDownloader := index.NewFakeIndexDownloader()
+	router := newRouter(dbConn, indexDownloader)
 	server := httptest.NewServer(router)
 
 	return &Fixtures{
